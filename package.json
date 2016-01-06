@@ -1,0 +1,57 @@
+{
+  "name": "freezer-js-router5",
+  "version": "0.1.0",
+  "description": "Synchronize router5 state in your freezer state.",
+  "main": "src/index.js",
+  "scripts": {
+    "build:umd": "rm -rf build/umd && NODE_ENV=production webpack src/index.js build/umd/freezer-router5.js && NODE_ENV=production COMPRESS=1 webpack src/index.js build/umd/freezer-router5.min.js && echo \"gzipped, the umd build is `gzip -c build/umd/freezer-router5.min.js | wc -c` bytes\"",
+    "build:npm": "rm -rf build/npm && babel -d build/npm/lib ./src && cp README.md build/npm && find -X build/npm/lib -type d -name __tests__ | xargs rm -rf && node -p 'p=require(\"./package-npm\");JSON.stringify(p,null,2)' > build/npm/package.json",
+    "publish": "npm run build:npm && npm publish ./build/npm",
+    "test": "tape -r babel-register src/**/*.test.js",
+    "test:pretty": "npm run test | faucet"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qur2/freezer-js-router5.git"
+  },
+  "tags": [
+    "router5"
+  ],
+  "keywords": [
+    "freezer",
+    "state",
+    "atom",
+    "router",
+    "router5"
+  ],
+  "author": "Aurélien Scoubeau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qur2/freezer-js-router5/issues"
+  },
+  "homepage": "https://github.com/qur2/freezer-js-router5#readme",
+  "devDependencies": {
+    "babel-cli": "^6.3.17",
+    "babel-core": "^6.3.26",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-stage-2": "^6.3.13",
+    "blue-tape": "^0.1.11",
+    "faucet": "0.0.1",
+    "tape": "^4.4.0",
+    "webpack": "^1.12.9"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "stage-2"
+    ]
+  },
+  "peerDependencies": {
+    "router5": "1.4.x",
+    "freezer-js": "0.9.x"
+  },
+  "dependencies": {
+  }
+}
