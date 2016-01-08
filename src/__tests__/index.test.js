@@ -1,7 +1,8 @@
+import sinon from 'sinon';
 import test from 'blue-tape';
 import Freezer from 'freezer-js';
 import { Router5 } from 'router5';
-import freezerPlugin from '../';
+import freezerPlugin, { actionTypes } from '../';
 
 
 // This bit is a bit ugly as it relies on the internals of router5.
@@ -147,6 +148,91 @@ test('Syncs router state on inactivable transition', t => {
       transitionRoute: {name: 'admin', path: '/admin', params: {}, _meta: {admin: {}}},
       transitionError: {code: 'CANNOT_ACTIVATE', segment: 'admin'},
     });
+    t.end();
+  };
+  router.start(function (err, state) {
+    router.navigate('index', {}, {}, function (err) {
+      pushRouterCallBack(router, '$$error', cb);
+      router.navigate('admin');
+    });
+  });
+});
+
+test('Triggers event on router start', t => {
+  const { fridge, router } = setup();
+  const plugin = freezerPlugin(fridge, 'theSpot');
+  router.usePlugin(plugin);
+  const spy = sinon.spy();
+  fridge.on(actionTypes.TRANSITION_START, spy);
+  router.start((err, state) => {
+    t.true(spy.calledOnce);
+    t.deepEqual(spy.args[0], [
+      {name: 'home', path: '/home', params: {}, _meta: {home: {}}},
+      null
+    ]);
+    t.end();
+  });
+});
+
+test('Triggers event on router success', t => {
+  const { fridge, router } = setup();
+  const plugin = freezerPlugin(fridge, 'theSpot');
+  router.usePlugin(plugin);
+  const spy = sinon.spy();
+  fridge.on(actionTypes.TRANSITION_SUCCESS, spy);
+  router.start(function (err, state) {
+    router.navigate('home', {}, {}, err => {
+      router.navigate('index', {}, {}, err => {
+        t.deepEqual(spy.args[0], [
+          {name: 'home', path: '/home', params: {}, _meta: {home: {}}},
+          null,
+          {replace: true}
+        ]);
+        t.deepEqual(spy.args[1], [
+          {name: 'index', path: '/', params: {}, _meta: {index: {}}},
+          {name: 'home', path: '/home', params: {}, _meta: {home: {}}},
+          {}
+        ]);
+        t.end();
+      });
+    });
+  });
+});
+
+test('Triggers event on router error', t => {
+  const { fridge, router } = setup();
+  const plugin = freezerPlugin(fridge, 'theSpot');
+  router.usePlugin(plugin);
+  const spy = sinon.spy();
+  fridge.on(actionTypes.TRANSITION_ERROR, spy);
+  var cb = () => {
+    t.deepEqual(spy.args[0], [
+      null,
+      {name: 'index', path: '/', params: {}, _meta: {index: {}}},
+      {code: 'ROUTE_NOT_FOUND'}
+    ]);
+    t.end();
+  };
+  router.start(function (err, state) {
+    router.navigate('index', {}, {}, function (err) {
+      pushRouterCallBack(router, '$$error', cb);
+      router.navigate('nowhere');
+    });
+  });
+});
+
+test('Triggers event on inactivable route', t => {
+  const { fridge, router } = setup();
+  const plugin = freezerPlugin(fridge, 'theSpot');
+  router.usePlugin(plugin);
+  const spy = sinon.spy();
+  fridge.on(actionTypes.TRANSITION_ERROR, spy);
+  var cb = () => {
+    t.deepEqual(spy.args[0], [
+      {name: 'admin', path: '/admin', params: {}, _meta: {admin: {}}},
+      {name: 'index', path: '/', params: {}, _meta: {index: {}}},
+      {code: 'CANNOT_ACTIVATE', segment: 'admin'}
+    ]);
     t.end();
   };
   router.start(function (err, state) {

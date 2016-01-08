@@ -39,6 +39,7 @@
     "babel-preset-stage-2": "^6.3.13",
     "blue-tape": "^0.1.11",
     "faucet": "0.0.1",
+    "sinon": "^1.17.2",
     "tape": "^4.4.0",
     "webpack": "^1.12.9"
   },
@@ -52,6 +53,5 @@
     "router5": "1.4.x",
     "freezer-js": "0.9.x"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
