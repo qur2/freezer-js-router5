@@ -11,12 +11,15 @@ const initialState = {
 };
 
 export default function freezerPlugin(fridge, fridgeSpot='router') {
-	let router, getSpot;
+  let router, getSpot;
 
-	function init(target) {
+  function init(target) {
     router = target;
-    fridge.get().set(fridgeSpot, initialState);
-    getSpot = () => fridge.get()[fridgeSpot];
+    getSpot = function () {
+      return fridge.get()[fridgeSpot];
+    };
+    const currentSpot = Object.assign({}, initialState, getSpot())
+    fridge.get().set(fridgeSpot, currentSpot);
   }
 
   function onTransitionStart(toState, fromState) {
