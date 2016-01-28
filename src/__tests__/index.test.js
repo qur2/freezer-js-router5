@@ -13,7 +13,21 @@ test('Sets a routing property in the state on plugin registration', t => {
     previousRoute: null,
     transitionRoute: null,
     transitionError: null,
-  }, 'with empty routing information');
+  }, 'routing information is there and empty');
+  t.end();
+});
+
+test('Preserves the initial state on plugin registration', t => {
+  const { fridge, router } = setup();
+  fridge.get().set('theSpot', {route: {name: 'server-side rendered'}})
+  const plugin = freezerPlugin(fridge, 'theSpot');
+  router.usePlugin(plugin);
+  t.deepEqual(fridge.get().theSpot, {
+    route: {name: 'server-side rendered'},
+    previousRoute: null,
+    transitionRoute: null,
+    transitionError: null,
+  }, 'original information was not overwritten');
   t.end();
 });
 
