@@ -1,6 +1,6 @@
 {
   "name": "freezer-js-router5",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Synchronize router5 state in your freezer state.",
   "main": "src/index.js",
   "scripts": {
