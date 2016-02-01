@@ -9,29 +9,21 @@ test('Calls router.navigate when NAVIGATE_TO is triggered', t => {
   const { fridge, router } = setup();
   const plugin = refreezerPlugin(fridge, 'router');
   router.usePlugin(plugin);
-  const spy = sinon.spy(router, 'navigate');
-  fridge.trigger(actionTypes.NAVIGATE_TO, 'some', 'params', 'opts');
-  t.true(spy.calledOnce);
-  t.deepEqual(spy.args[0], ['some', 'params', 'opts']);
-  t.end();
+
+  router.start(function (err, state) {
+    const spy = sinon.spy(router, 'navigate');
+    fridge.trigger(actionTypes.NAVIGATE_TO, 'index', {}, {});
+    t.true(spy.calledOnce);
+    t.deepEqual(spy.args[0], ['index', {}, {}]);
+    t.end();
+  });
 });
 
-test('Calls router.cancel when CANCEL_TRANSITION is triggered', t => {
-  const { fridge, router } = setup();
-  const plugin = refreezerPlugin(fridge, 'router');
-  router.usePlugin(plugin);
-  const spy = sinon.spy(router, 'cancel');
-  fridge.trigger(actionTypes.CANCEL_TRANSITION);
-  t.true(spy.calledOnce);
-  t.deepEqual(spy.args[0], []);
-  t.end();
-});
 
 test('clears error when CLEAR_ERROR is triggered', t => {
   const { fridge, router } = setup();
   const plugin = refreezerPlugin(fridge, 'router');
   router.usePlugin(plugin);
-  const spy = sinon.spy(router, 'cancel');
   fridge.trigger(actionTypes.CLEAR_ERROR);
 
   var cb = () => {

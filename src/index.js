@@ -11,44 +11,41 @@ const initialState = {
 };
 
 export default function freezerPlugin(fridge, fridgeSpot='router') {
-  let router, getSpot;
+  const getSpot = function () {
+    return fridge.get()[fridgeSpot];
+  };
+  const currentSpot = Object.assign({}, initialState, getSpot())
+  fridge.get().set(fridgeSpot, currentSpot);
 
-  function init(target) {
-    router = target;
-    getSpot = function () {
-      return fridge.get()[fridgeSpot];
-    };
-    const currentSpot = Object.assign({}, initialState, getSpot())
-    fridge.get().set(fridgeSpot, currentSpot);
-  }
+  return router => ({
+    name: pluginName,
 
-  function onTransitionStart(toState, fromState) {
-    fridge.trigger(actionTypes.TRANSITION_START, toState, fromState);
-    return getSpot().set({
-      transitionRoute: toState,
-      transitionError: null,
-    });
-  }
+    onTransitionStart (toState, fromState) {
+      fridge.trigger(actionTypes.TRANSITION_START, toState, fromState);
+      return getSpot().set({
+        transitionRoute: toState,
+        transitionError: null,
+      });
+    },
 
-  function onTransitionSuccess(toState, fromState, opts) {
-    fridge.trigger(actionTypes.TRANSITION_SUCCESS, toState, fromState, opts);
-    return getSpot().set({
-      transitionRoute: null,
-      transitionError: null,
-      previousRoute: fromState,
-      route: toState,
-    });
-  }
+    onTransitionSuccess (toState, fromState, opts) {
+      fridge.trigger(actionTypes.TRANSITION_SUCCESS, toState, fromState, opts);
+      return getSpot().set({
+        transitionRoute: null,
+        transitionError: null,
+        previousRoute: fromState,
+        route: toState,
+      });
+    },
 
-  function onTransitionError(toState, fromState, err) {
-    fridge.trigger(actionTypes.TRANSITION_ERROR, toState, fromState, err);
-    return getSpot().set({
-      transitionRoute: toState,
-      transitionError: err,
-    });
-  }
-
-  return { name: pluginName, init, onTransitionStart, onTransitionSuccess, onTransitionError };
+    onTransitionError (toState, fromState, err) {
+      fridge.trigger(actionTypes.TRANSITION_ERROR, toState, fromState, err);
+      return getSpot().set({
+        transitionRoute: toState,
+        transitionError: err,
+      });
+    },
+  })
 }
 
 export { actionTypes };

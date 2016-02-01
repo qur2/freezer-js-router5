@@ -2,6 +2,8 @@ import * as actionTypes from './actionTypes';
 import plugin from './';
 
 
+const pluginName = 'REFREEZER';
+
 function onClearError(fridge, router, getSpot) {
   fridge.on(actionTypes.CLEAR_ERROR, function clearError() {
     getSpot().set({
@@ -17,27 +19,21 @@ function onNavigateTo(fridge, router) {
   });
 }
 
-function onCancelTransition(fridge, router) {
-  fridge.on(actionTypes.CANCEL_TRANSITION, function cancelTransition() {
-    router.cancel();
-  });
-}
-
 // Simple wrapper to the original plugin that adds reactions to the freezer
 // state. It is done in that way so that using the simple version does not
 // pull in unneeded dependencies.
-export default function refreezerPlugin(fridge, fridgeSpot) {
-  let router, getSpot;
-  let delegate = plugin(fridge, fridgeSpot);
-
-	function init(target) {
-    router = target;
-    getSpot = () => fridge.get()[fridgeSpot];
-    onClearError(fridge, router, getSpot);
-    onNavigateTo(fridge, router);
-    onCancelTransition(fridge, router);
-    return delegate.init(target);
-  }
-
-  return { ...delegate, init };
+export default function refreezerPlugin(fridge, fridgeSpot='router') {
+  const delegate = plugin(fridge, fridgeSpot);
+  const getSpot = () => fridge.get()[fridgeSpot];
+  return router => ({
+    ...delegate(router),
+    onStart() {
+      onClearError(fridge, router, getSpot);
+      onNavigateTo(fridge, router);
+    },
+    onStop() {
+      // should clear freezer reactions
+    },
+    name: pluginName,
+  })
 }
